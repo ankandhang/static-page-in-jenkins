@@ -1,11 +1,31 @@
 pipeline {
     agent any
+
     stages {
         stage('Clone Code') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/ankandhang/static-page-in-jenkins.git'
+                git 'https://github.com/your-repo/web-app.git'
             }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t static-web-app .'
+            }
+        }
+
+        stage('Run Container') {
+            steps {
+                sh 'docker stop webapp || true'
+                sh 'docker rm webapp || true'
+                sh 'docker run -d -p 8080:80 --name webapp static-web-app'
+            }
+        }
+    }
+    
+    post {
+        success {
+            echo "Deployment Successful!"
         }
     }
 }
